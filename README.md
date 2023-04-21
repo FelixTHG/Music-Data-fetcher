@@ -2,40 +2,40 @@
 Script that is meant to get and aggregate data from Spotify API to make it accessible for analysis
 
 
-There's a music business student that wants to analyse data from the top 50 songs per quarter over 5 years on spotify, in 3 different countries.
-This means we have 50 songs * 4 quarters * 5 years * 3 countries = 3000 songs.
-1000 songs have been added to the repo in Norway's .CSV files
-The field called URI can be used to send to the spotify API (URI stands for uniform resource identifier)
-https://developer.spotify.com/documentation/web-api
+There's a music business student that wants to analyse data from the top 50 songs per quarter over 5 years on spotify, in 3 different countries.<br>
+This means we have 50 songs * 4 quarters * 5 years * 3 countries = 3000 songs.<br>
+1000 songs have been added to the repo in Norway's .CSV files<br>
+The field called URI can be used to send to the spotify API (URI stands for uniform resource identifier)<br>
+https://developer.spotify.com/documentation/web-api<br><br>
 
-The URI is in practice an ID for a song in Spotify's database/api.
-The fields that the student wants to study/analyse are:
-Length
-loudness
-tempo 
-key (musical key (string))
-explicit (bool)
-genres (array)
+The URI is in practice an ID for a song in Spotify's database/api.<br>
+The fields that the student wants to study/analyse are:<br>
+Length<br>
+loudness<br>
+tempo <br>
+key (musical key (string))<br>
+explicit (bool)<br>
+genres (array)<br>
+<br>
+https://developer.spotify.com/documentation/web-api/reference/get-track<br>
+from this API-endpoint we can get:<br>
+explicit (bool) whether lyrics are explicit or not<br>
+duration_ms (int) duration in milliseconds<br>
+genres (array of strings) genres of the artist!!!<br><br>
 
-https://developer.spotify.com/documentation/web-api/reference/get-track
-from this API-endpoint we can get:
-explicit (bool) whether lyrics are explicit or not
-duration_ms (int) duration in milliseconds
-genres (array of strings) genres of the artist!!!
-
-https://developer.spotify.com/documentation/web-api/reference/get-audio-analysis
-from this API-endpoint we can get:
-duration (number) length of track in seconds (ex 207.95985)
-loudness (number float)
-tempo (number float)
-key (integer)
+https://developer.spotify.com/documentation/web-api/reference/get-audio-analysis<br>
+from this API-endpoint we can get:<br>
+duration (number) length of track in seconds (ex 207.95985)<br>
+loudness (number float)<br>
+tempo (number float)<br>
+key (integer)<br>
 
 other data that might be of interest:
-analyzer_version
-analysis_sample_rate?
-tempo_confidence
-time_signature
-time_signature_confidence
+analyzer_version<br>
+analysis_sample_rate?<br>
+tempo_confidence<br>
+time_signature<br>
+time_signature_confidence<br>
 
 
 

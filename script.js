@@ -177,7 +177,7 @@ async function getSpotifyAccessToken() {
         console.log(`${songDetail.song} by ${songDetail.artist}:`);
         console.log(`  Duration: ${songDetail.duration_s} s`);
         console.log(`  Explicit: ${songDetail.explicit}`);
-        console.log(`  Genres: ${songDetail.genres.join(', ')}`);
+        console.log(`  Genres: ${songDetail.genres ? songDetail.genres.join(', ') : ' ' }`);
         console.log(`  Loudness: ${songDetail.loudness}`);
         console.log(`  Tempo: ${songDetail.tempo}`);
         console.log(`  Key: ${songDetail.key}`);

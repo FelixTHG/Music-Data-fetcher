@@ -141,21 +141,27 @@ async function getSpotifyAccessToken() {
     const songDetails = [];
     for (const songObj of songs) {
       await sleep(100);
+      let songDetail = {
+        song: songObj.song,
+        artist: songObj.artist
+      };
       const track = await searchSong(accessToken, songObj.song, songObj.artist);
       if (track) {
         const trackDetails = await getTrackDetails(accessToken, track.id);
         const artistDetails = await getArtistDetails(accessToken, track.artists[0].id);
-        songDetails.push({
-          song: songObj.song,
-          artist: songObj.artist,
-          duration_s: trackDetails.track.duration_ms/1000,
-          explicit: trackDetails.track.explicit,
-          genres: artistDetails.genres,
-          loudness: trackDetails.audioFeatures.loudness,
-          tempo: trackDetails.audioFeatures.tempo,
-          key: trackDetails.audioFeatures.key
-        });
+        if(trackDetails)
+        {
+          songDetail.duration_s = trackDetails.track.duration_ms/1000;
+          songDetail.explicit = trackDetails.track.explicit;
+          songDetail.loudness = trackDetails.audioFeatures.loudness;
+          songDetail.tempo = trackDetails.audioFeatures.tempo;
+          songDetail.key = trackDetails.audioFeatures.key
+        }
+        if(artistDetails)
+          songDetail.genres = artistDetails.genres;
       }
+
+      songDetails.push(songDetail);
     }
     return songDetails;
   }
@@ -171,7 +177,7 @@ async function getSpotifyAccessToken() {
         console.log(`${songDetail.song} by ${songDetail.artist}:`);
         console.log(`  Duration: ${songDetail.duration_s} s`);
         console.log(`  Explicit: ${songDetail.explicit}`);
-        console.log(`  Genres: ${songDetail.genres.join(', ')}`);
+        console.log(`  Genres: ${songDetail.genres ? songDetail.genres.join(', ') : ' ' }`);
         console.log(`  Loudness: ${songDetail.loudness}`);
         console.log(`  Tempo: ${songDetail.tempo}`);
         console.log(`  Key: ${songDetail.key}`);

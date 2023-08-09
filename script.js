@@ -2,7 +2,11 @@ const axios = require('axios');
 const csvParser = require('csv-parser');
 const fs = require('fs');
 const winston = require('winston');
+const csvWriter = require('fast-csv').write;
+const ws = fs.createWriteStream('output.csv');
 require('dotenv').config();
+
+console.log('Waiting...');
 
 // En error logger
 
@@ -134,6 +138,19 @@ async function getSpotifyAccessToken() {
     const songDurations = await fetchSongDetailsForSongs(allSongs, accessToken);
     return songDurations;
   }
+
+  // Test versjon under, går mye raskere å bruke.
+
+  // async function fetchSongDetails() {
+  //   const accessToken = await getSpotifyAccessToken();
+  //   const songs1 = await readSongsFromFile('Spotify_Tester_1.csv');
+  //   const songs2 = await readSongsFromFile('Spotify_Tester_2.csv');
+  //   const songs3 = await readSongsFromFile('Spotify_Tester_3.csv');
+  //   const allSongs = [...songs1, ...songs2, ...songs3];
+  //   const songDurations = await fetchSongDetailsForSongs(allSongs, accessToken);
+  //   return songDurations;
+  // }
+  
   
   // Henter all ønsket informasjon
 
@@ -166,26 +183,23 @@ async function getSpotifyAccessToken() {
     return songDetails;
   }
   
+// Outputter verdiene fra Spotify i en egen csv-fil.
 
-  // Viser verdiene fra Spotify i terminalen 
-  
-  (async function () {
-    try {
-      const songDetails = await fetchSongDetails();
-      console.log('Song details:');
-      for (const songDetail of songDetails) {
-        console.log(`${songDetail.song} by ${songDetail.artist}:`);
-        console.log(`  Duration: ${songDetail.duration_s} s`);
-        console.log(`  Explicit: ${songDetail.explicit}`);
-        console.log(`  Genres: ${songDetail.genres ? songDetail.genres.join(', ') : ' ' }`);
-        console.log(`  Loudness: ${songDetail.loudness}`);
-        console.log(`  Tempo: ${songDetail.tempo}`);
-        console.log(`  Key: ${songDetail.key}`);
-      }
-    } catch (error) {
-      console.error('Error fetching song details:', error);
+(async function () {
+  try {
+    const songDetails = await fetchSongDetails();
+
+    // Write headers
+    ws.write('Song,Artist,Duration (s),Explicit,Genres,Loudness,Tempo,Key\n');
+
+    for (const songDetail of songDetails) {
+      ws.write(`${songDetail.song},${songDetail.artist},${songDetail.duration_s},${songDetail.explicit},${songDetail.genres ? songDetail.genres.join(', ') : ' '},${songDetail.loudness},${songDetail.tempo},${songDetail.key}\n`);
     }
-  })();
-  
-  
-  
+    
+    ws.end();
+  } catch (error) {
+    console.error('Error fetching song details:', error);
+  }
+  console.log('Completed.');
+})();
+

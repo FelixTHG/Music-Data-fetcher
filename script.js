@@ -8,9 +8,6 @@ const fastCsv = require('fast-csv');
 const fs = require('fs');
 const ws = fs.createWriteStream('output.csv');
 
-// The rest of your code
-
-
 require('dotenv').config();
 
 console.log('Waiting...');
@@ -72,7 +69,7 @@ async function readSongsFromFile(fileName) {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  let sleepTime = 100;
+  let sleepTime = 150;
 
   // Får lyd informasjon fra Spotify gjennom å bruke AcessToken
 
@@ -87,7 +84,8 @@ async function readSongsFromFile(fileName) {
       return trackResponse.data.tracks;
     } catch(error) {
       if (error.response && error.response.status === 429) {
-        const retryAfter = error.response.headers['Retry-After'];
+        const defaultRetryTime = 10; 
+        const retryAfter = error.response.headers['Retry-After'] || defaultRetryTime;
         console.log(`Rate limit hit, waiting for ${retryAfter} seconds`);
         await sleep(retryAfter * 1000); // Convert to milliseconds
         return await getMultipleTrackDetails(accessToken, trackIds);
@@ -178,7 +176,7 @@ async function readSongsFromFile(fileName) {
 
   async function fetchSongDetailsForSongs(songs, accessToken) {
     const songDetails = [];
-    const batchSize = 50; // Set the batch size according to Spotify's limits
+    const batchSize = 40; // Set the batch size according to Spotify's limits
   
     for (let i = 0; i < songs.length; i += batchSize) {
       await sleep(sleepTime);
@@ -203,15 +201,27 @@ async function readSongsFromFile(fileName) {
             songDetail.loudness = audioFeatures.loudness;
             songDetail.tempo = audioFeatures.tempo;
             songDetail.key = audioFeatures.key;
-            const artistDetails = await getArtistDetails(accessToken, trackDetails.artists[0].id);
-            songDetail.genres = artistDetails.genres;
+            
+            // Check for the existence of trackDetails.artists and if it has at least one element
+            if (trackDetails.artists && trackDetails.artists.length > 0) {
+                const artistDetails = await getArtistDetails(accessToken, trackDetails.artists[0].id);
+                if (artistDetails) {
+                    songDetail.genres = artistDetails.genres;
+                } else {
+                    songDetail.genres = [];
+                    logger.warn(`Couldn't fetch genres for song: ${songObj.song} by artist: ${songObj.artist}`);
+                }
+            } else {
+                songDetail.genres = [];
+                logger.warn(`No artist details found for song: ${songObj.song}`);
+            }
           }
   
           songDetails.push(songDetail);
         }
       } catch (error) {
         if (error.response && error.response.status === 429) { // Rate limit error
-          const retryAfter = error.response.headers['retry-after'];
+          const retryAfter = error.response.headers['retry-after'] || defaultRetryTime;
           console.log(`Rate limit hit, waiting for ${retryAfter} seconds`);
           await new Promise(resolve => setTimeout(resolve, (retryAfter || 1) * 1000));
           i -= batchSize; // Decrement the index to retry this batch
@@ -223,7 +233,8 @@ async function readSongsFromFile(fileName) {
     }
   
     return songDetails;
-  }
+}
+
   
 
 // Outputter verdiene fra Spotify i en egen csv-fil.

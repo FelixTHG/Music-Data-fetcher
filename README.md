@@ -1,49 +1,63 @@
-# Music-Data-fetcher
-Script that is meant to get and aggregate data from Spotify API to make it accessible for analysis
+# 🎵 Music Data Fetcher
+
+A script to collect, process, and export track-level metadata from the **Spotify Web API**, tailored for non-technical users in music research and analysis.
+
+Originally built to support a **music business student’s bachelor's thesis**, this tool automates the collection of track attributes (e.g., tempo, loudness, key, genres) for thousands of songs across multiple countries and time periods. The resulting dataset is clean, aggregated, and ready for further analysis (e.g., in Excel, R, or Python).
+
+---
+
+## 📊 Use Case
+
+> 5 years × 4 quarters × 3 countries × 50 top songs = **~3000 tracks**
+
+This project was created to extract key attributes from **Spotify’s API** for each track listed in `.csv` files (e.g., Norway's Top 50 each quarter). These features were required for music industry analysis but not easily accessible without programming.
+
+---
+
+## ✅ Features
+
+- 🔐 OAuth 2.0-based access to Spotify API (Client Credentials flow)
+- 🎧 Track-level data: `duration`, `explicit`, `tempo`, `loudness`, `key`
+- 🧑‍🎤 Artist-level data: `genres` (via separate endpoint)
+- 📄 Merges and processes thousands of songs across multiple CSV files
+- ⚠️ Respects Spotify's rate limits with retry logic and batching
+- 🐛 Logs all failed lookups and issues to `error.log`
+- 📤 Exports clean data to `output.csv`
+
+---
+
+## 🛠️ Tech Stack
+
+- **JavaScript (Node.js)**
+- `axios` for HTTP requests
+- `dotenv` for credentials
+- `fast-csv` and `csv-parser` for CSV I/O
+- `winston` for logging
+- **Spotify Web API**
+
+---
+
+## 🔐 Requirements
+
+You **must** set up a `.env` file with your Spotify Developer credentials to make it work.
+
+🛠️ How to Use (Quick Start)
+1. Clone repo and install: git clone ... && cd ... && npm install
+2. Create .env with CLIENT_ID and CLIENT_SECRET
+3. Add input .csv files to the project root
+4. Run the script: node index.js
+5. Get results in output.csv (errors in error.log)
 
 
-There's a music business student that wants to analyse data from the top 50 songs per quarter over 5 years on spotify, in 3 different countries.<br>
-This means we have 50 songs * 4 quarters * 5 years * 3 countries = 3000 songs.<br>
-1000 songs have been added to the repo in Norway's .CSV files<br>
-The field called URI can be used to send to the spotify API (URI stands for uniform resource identifier)<br>
-https://developer.spotify.com/documentation/web-api<br><br>
+⚙️ How It Works (Under the Hood)
+1. CSV Parsing: Reads rows with track_name and artist_names
+2. Search API: Uses Spotify’s /search endpoint to find exact track IDs
+3. Batch Queries:
+    - /tracks endpoint: for duration, explicit flag
+    - /audio-features: for tempo, loudness, key
+    - /artists: for genre metadata
+4. Rate Limiting: Handles 429 errors with dynamic sleep/retry logic
+5. Logging: Errors like "track not found" or failed fetches are written to error.log
+6. Output: Final enriched dataset is written to output.csv
 
-The URI is in practice an ID for a song in Spotify's database/api.<br>
-The fields that the student wants to study/analyse are:<br>
-Length<br>
-loudness<br>
-tempo <br>
-key (musical key (string))<br>
-explicit (bool)<br>
-genres (array)<br>
-<br>
-https://developer.spotify.com/documentation/web-api/reference/get-track<br>
-from this API-endpoint we can get:<br>
-explicit (bool) whether lyrics are explicit or not<br>
-duration_ms (int) duration in milliseconds<br>
-genres (array of strings) genres of the artist!!!<br><br>
-
-https://developer.spotify.com/documentation/web-api/reference/get-audio-analysis<br>
-from this API-endpoint we can get:<br>
-duration (number) length of track in seconds (ex 207.95985)<br>
-loudness (number float)<br>
-tempo (number float)<br>
-key (integer)<br>
-
-other data that might be of interest:
-analyzer_version<br>
-analysis_sample_rate?<br>
-tempo_confidence<br>
-time_signature<br>
-time_signature_confidence<br>
-
-
-
-to get started I'd follow the "getting started" guide on this page:
-https://developer.spotify.com/documentation/web-api
-If you are stuck you may ask new bing for an example. 
-Personally I wanted to make the script/programme in Erlang, just because I want to learn it.
-Use whatever language you want :) Asking Bing it gave me an example of how to connect in Python, 
-and also it wrote that (when asked naturally) spotify allows approximately 160 requests per minute.
-just to be safe I suggest letting maximum 100 requests go every minute, as we don't want to be blocked.
-Also 100 coincides nicely with 50 songs, because since we need 2 separate endpoints, we will need 50 songs * 2 endpoints.
+MIT License
